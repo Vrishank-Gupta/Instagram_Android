@@ -32,6 +32,7 @@ public class ProfileActivity extends AppCompatActivity {
     private static final int ACTIVITY_NUM = 4;
     private ProgressBar mprogressBar;
     private ImageView profilePhoto;
+    private static final int NUM_GRID_COLOUMNS = 3;
 
 
     @Override
@@ -44,17 +45,21 @@ public class ProfileActivity extends AppCompatActivity {
         setupToolbar();
         setupActivityWidgets();
         setProfilePhoto();
-        temGridSetup();
+        tempGridSetup();
     }
 
     public void setImageGrid(ArrayList<String> imgURLs)
     {
         GridView gridView = findViewById(R.id.gridView);
+        int gridWidth = getResources().getDisplayMetrics().widthPixels;
+        int imageWidth = gridWidth/NUM_GRID_COLOUMNS;
+        gridView.setColumnWidth(imageWidth);
+
         GridImageAdapter adapter = new GridImageAdapter(mContext,R.layout.layout_grid_imageview,"",imgURLs);
         gridView.setAdapter(adapter);
     }
 
-    private void temGridSetup()
+    private void tempGridSetup()
     {
         ArrayList<String> imgURLs = new ArrayList<>();
         imgURLs.add("https://pbs.twimg.com/profile_images/616076655547682816/6gMRtQyY.jpg");
