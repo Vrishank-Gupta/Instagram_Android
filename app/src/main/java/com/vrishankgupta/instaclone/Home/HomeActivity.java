@@ -10,9 +10,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.ittianyu.bottomnavigationviewex.BottomNavigationViewEx;
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.vrishankgupta.instaclone.R;
 import com.vrishankgupta.instaclone.Utils.BottomNavigationViewHelper;
 import com.vrishankgupta.instaclone.Utils.SectionsPagerAdapter;
+import com.vrishankgupta.instaclone.Utils.UniversalImageLoader;
 
 public class HomeActivity extends AppCompatActivity {
 
@@ -25,8 +27,15 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         Log.d(TAG, "onCreate: starting");
+        initImageLoader();
         setupBottomNavigationView();
         setupViewPager();
+    }
+
+    private void initImageLoader()
+    {
+        UniversalImageLoader universalImageLoader = new UniversalImageLoader(mContext);
+        ImageLoader.getInstance().init(universalImageLoader.getConfig());
     }
 
     /**
