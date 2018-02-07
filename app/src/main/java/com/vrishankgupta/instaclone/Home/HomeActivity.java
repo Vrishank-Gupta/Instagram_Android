@@ -86,6 +86,7 @@ public class HomeActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+
     }
 
     private void initImageLoader()

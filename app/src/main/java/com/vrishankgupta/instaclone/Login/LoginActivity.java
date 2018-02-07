@@ -19,6 +19,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.vrishankgupta.instaclone.Home.HomeActivity;
 import com.vrishankgupta.instaclone.R;
 
 /**
@@ -101,6 +102,22 @@ public class LoginActivity  extends AppCompatActivity {
                 }
             }
         });
+
+        TextView linkSignUp = findViewById(R.id.linkSignUp);
+        linkSignUp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d(TAG, "onClick: nav to reg Screen");
+                startActivity(new Intent(LoginActivity.this,RegisterActivity.class));
+
+            }
+        });
+        if(auth.getCurrentUser() != null)
+        {
+            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
     private void setupFirebaseAuth()
