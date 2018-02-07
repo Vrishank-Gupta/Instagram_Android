@@ -11,10 +11,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.vrishankgupta.instaclone.R;
+import com.vrishankgupta.instaclone.Utils.FirebaseMethods;
 
 /**
  * Created by vrishankgupta on 01/02/18.
@@ -31,18 +33,24 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView loadingPleaseWait;
     private Button btnReg;
     private ProgressBar mProgressBar;
+    private FirebaseMethods firebaseMethods;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        context=RegisterActivity.this;
         setContentView(R.layout.activity_register);
+        firebaseMethods = new FirebaseMethods(context);
         Log.d(TAG, "onCreate: ");
         initWidgets();
         setupFirebaseAuth();
+        init();
     }
     private void initWidgets()
     {
         Log.d(TAG, "initWidgets: ");
+        mUsername = findViewById(R.id.input_username);
+        btnReg = findViewById(R.id.btnRegister);
         mProgressBar = findViewById(R.id.progressBar);
         loadingPleaseWait = findViewById(R.id.loadingPleaseWait);
         eMail = findViewById(R.id.input_email);
@@ -51,6 +59,36 @@ public class RegisterActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.GONE);
         loadingPleaseWait.setVisibility(View.GONE);
 
+    }
+
+    private boolean checkInputs(String email,String username,String password)
+    {
+        Log.d(TAG, "checkInputs: check null values");
+        if(email.equals("") || username.equals("") || password.equals("")){
+            Toast.makeText(context, "Empty Fields!", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+
+        return true;
+    }
+
+    private void init()
+    {
+        btnReg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                email = eMail.getText().toString();
+                password = mPassword.getText().toString();
+                username=mUsername.getText().toString();
+
+                if(checkInputs(email,username,password))
+                {
+                    mProgressBar.setVisibility(View.VISIBLE);
+                    loadingPleaseWait.setVisibility(View.VISIBLE);
+                    firebaseMethods.regNewEmail(email,password,username);
+                }
+            }
+        });
     }
 
     private Boolean isStringNull(String string)
