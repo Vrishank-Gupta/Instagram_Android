@@ -15,8 +15,11 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.vrishankgupta.instaclone.R;
 import com.vrishankgupta.instaclone.Utils.FirebaseMethods;
 
@@ -35,6 +38,8 @@ public class RegisterActivity extends AppCompatActivity {
     private TextView loadingPleaseWait;
     private Button btnRegister;
     private ProgressBar mProgressBar;
+
+    private String append = "";
 
     //firebase
     private FirebaseAuth mAuth;
@@ -121,6 +126,8 @@ public class RegisterActivity extends AppCompatActivity {
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
         mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
@@ -130,6 +137,29 @@ public class RegisterActivity extends AppCompatActivity {
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                    myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override //success
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            // 1st check username isn't already in use
+                            if(firebaseMethods.checkIfUsernameExist(username,dataSnapshot))
+                            {
+                                append = myRef.push().getKey().substring(3,10);
+                                Log.d(TAG, "onDataChange: already exist appending" + append);
+                                username = username + append;
+
+                            }
+
+                            //add new user to db
+
+
+                            //add new user_account_setting to db
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");

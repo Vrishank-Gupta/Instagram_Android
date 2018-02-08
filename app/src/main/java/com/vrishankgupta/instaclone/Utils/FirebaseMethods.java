@@ -10,6 +10,8 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.vrishankgupta.instaclone.Models.User;
 import com.vrishankgupta.instaclone.R;
 
 
@@ -35,6 +37,26 @@ public class FirebaseMethods {
         if(mAuth.getCurrentUser() != null){
             userID = mAuth.getCurrentUser().getUid();
         }
+    }
+
+    public boolean checkIfUsernameExist(String username, DataSnapshot dataSnapshot)
+    {
+        Log.d(TAG, "checkIfUsernameExist: checking if" + username+ "already exist");
+        User user = new User();
+        for(DataSnapshot ds: dataSnapshot.getChildren())
+        {
+            Log.d(TAG, "checkIfUsernameExist: datasnapshot" + ds);
+            user.setUsername(ds.getValue(User.class).getUsername());
+            Log.d(TAG, "checkIfUsernameExist: "+user.getUsername());
+
+            if(StringManipulation.expandUsername(user.getUsername()).equals(username))
+            {
+                Log.d(TAG, "checkIfUsernameExist: found a match" + user.getUsername());
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
