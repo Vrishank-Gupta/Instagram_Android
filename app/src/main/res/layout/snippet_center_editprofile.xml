@@ -43,7 +43,7 @@
                     <ImageView
                         android:layout_width="35dp"
                         android:layout_height="35dp"
-                        android:src="@drawable/ic_username"
+                        android:src="@drawable/ic_user_circle"
                         android:layout_centerVertical="true"
                         />
 

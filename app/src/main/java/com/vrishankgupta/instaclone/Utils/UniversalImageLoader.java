@@ -39,12 +39,13 @@ public class UniversalImageLoader {
                 .cacheInMemory(true)
                 .cacheOnDisk(true).resetViewBeforeLoading(true)
                 .imageScaleType(ImageScaleType.EXACTLY)
-                .displayer(new FadeInBitmapDisplayer(300)).build();
+                .displayer(new FadeInBitmapDisplayer(300))
+                .build();
+
         ImageLoaderConfiguration configuration = new ImageLoaderConfiguration.Builder(context)
                 .memoryCache(new WeakMemoryCache())
                 .diskCacheSize(100 * 1024 *1024).build();
         return configuration;
-
     }
 
     /**

@@ -15,121 +15,141 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vrishankgupta.instaclone.R;
 import com.vrishankgupta.instaclone.Utils.FirebaseMethods;
 
+
 /**
- * Created by vrishankgupta on 01/02/18.
+ * Created by User on 6/19/2017.
  */
 
 public class RegisterActivity extends AppCompatActivity {
-    private static final String TAG = "RegisterActivity";
-    private FirebaseAuth auth;
-    private FirebaseAuth.AuthStateListener authStateListener;
 
-    private Context context;
-    private String email,password,username;
-    private EditText eMail,mPassword,mUsername;
+    private static final String TAG = "RegisterActivity";
+
+    private Context mContext;
+    private String email, username, password;
+    private EditText mEmail, mPassword, mUsername;
     private TextView loadingPleaseWait;
-    private Button btnReg;
+    private Button btnRegister;
     private ProgressBar mProgressBar;
+
+    //firebase
+    private FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods firebaseMethods;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference myRef;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        context=RegisterActivity.this;
         setContentView(R.layout.activity_register);
-        firebaseMethods = new FirebaseMethods(context);
-        Log.d(TAG, "onCreate: ");
+        mContext = RegisterActivity.this;
+        firebaseMethods = new FirebaseMethods(mContext);
+        Log.d(TAG, "onCreate: started.");
+
         initWidgets();
         setupFirebaseAuth();
         init();
     }
-    private void initWidgets()
-    {
-        Log.d(TAG, "initWidgets: ");
-        mUsername = findViewById(R.id.input_username);
-        btnReg = findViewById(R.id.btnRegister);
-        mProgressBar = findViewById(R.id.progressBar);
-        loadingPleaseWait = findViewById(R.id.loadingPleaseWait);
-        eMail = findViewById(R.id.input_email);
-        mPassword = findViewById(R.id.input_password);
-        context = RegisterActivity.this;
-        mProgressBar.setVisibility(View.GONE);
-        loadingPleaseWait.setVisibility(View.GONE);
 
-    }
-
-    private boolean checkInputs(String email,String username,String password)
-    {
-        Log.d(TAG, "checkInputs: check null values");
-        if(email.equals("") || username.equals("") || password.equals("")){
-            Toast.makeText(context, "Empty Fields!", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-
-        return true;
-    }
-
-    private void init()
-    {
-        btnReg.setOnClickListener(new View.OnClickListener() {
+    private void init(){
+        btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                email = eMail.getText().toString();
+                email = mEmail.getText().toString();
+                username = mUsername.getText().toString();
                 password = mPassword.getText().toString();
-                username=mUsername.getText().toString();
 
-                if(checkInputs(email,username,password))
-                {
+                if(checkInputs(email, username, password)){
                     mProgressBar.setVisibility(View.VISIBLE);
                     loadingPleaseWait.setVisibility(View.VISIBLE);
-                    firebaseMethods.regNewEmail(email,password,username);
+
+                    firebaseMethods.registerNewEmail(email, password, username);
                 }
             }
         });
     }
 
-    private Boolean isStringNull(String string)
-    {
-        Log.d(TAG, "isStringNull: ");
-        if(string.equals(""))
-            return true;
-        return false;
+    private boolean checkInputs(String email, String username, String password){
+        Log.d(TAG, "checkInputs: checking inputs for null values.");
+        if(email.equals("") || username.equals("") || password.equals("")){
+            Toast.makeText(mContext, "All fields must be filled out.", Toast.LENGTH_SHORT).show();
+            return false;
+        }
+        return true;
+    }
+    /**
+     * Initialize the activity widgets
+     */
+    private void initWidgets(){
+        Log.d(TAG, "initWidgets: Initializing Widgets.");
+        mEmail = (EditText) findViewById(R.id.input_email);
+        mUsername = (EditText) findViewById(R.id.input_username);
+        btnRegister = (Button) findViewById(R.id.btnRegister);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        loadingPleaseWait = (TextView) findViewById(R.id.loadingPleaseWait);
+        mPassword = (EditText) findViewById(R.id.input_password);
+        mContext = RegisterActivity.this;
+        mProgressBar.setVisibility(View.GONE);
+        loadingPleaseWait.setVisibility(View.GONE);
+
     }
 
+    private boolean isStringNull(String string){
+        Log.d(TAG, "isStringNull: checking string if null.");
 
-    private void setupFirebaseAuth()
-    {
-        Log.d(TAG, "setupFirebaseAuth: setting up firbase auth");
-        auth = FirebaseAuth.getInstance();
-        authStateListener = new FirebaseAuth.AuthStateListener() {
+        if(string.equals("")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+     /*
+    ------------------------------------ Firebase ---------------------------------------------
+     */
+
+    /**
+     * Setup the firebase auth object
+     */
+    private void setupFirebaseAuth(){
+        Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
+
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
-                if(user != null)
-                {
-                    Log.d(TAG, "onAuthStateChanged: signed In" + user.getUid());
+
+                if (user != null) {
+                    // User is signed in
+                    Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+                } else {
+                    // User is signed out
+                    Log.d(TAG, "onAuthStateChanged:signed_out");
                 }
-                else
-                {
-                    Log.d(TAG, "onAuthStateChanged: SignedOut");
-                }
+                // ...
             }
         };
     }
 
     @Override
-    protected void onStart() {
+    public void onStart() {
         super.onStart();
-        auth.addAuthStateListener(authStateListener);
-
+        mAuth.addAuthStateListener(mAuthListener);
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
-        auth.removeAuthStateListener(authStateListener);
+        if (mAuthListener != null) {
+            mAuth.removeAuthStateListener(mAuthListener);
+        }
     }
 }
