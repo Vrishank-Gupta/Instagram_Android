@@ -39,14 +39,15 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btnRegister;
     private ProgressBar mProgressBar;
 
-    private String append = "";
-
     //firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods firebaseMethods;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
+
+    private String append = "";
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -137,22 +138,22 @@ public class RegisterActivity extends AppCompatActivity {
                 if (user != null) {
                     // User is signed in
                     Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
+
                     myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override //success
+                        @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            // 1st check username isn't already in use
-                            if(firebaseMethods.checkIfUsernameExist(username,dataSnapshot))
-                            {
+                            //1st check: Make sure the username is not already in use
+                            if(firebaseMethods.checkIfUsernameExists(username, dataSnapshot)){
                                 append = myRef.push().getKey().substring(3,10);
-                                Log.d(TAG, "onDataChange: already exist appending" + append);
-                                username = username + append;
-
+                                Log.d(TAG, "onDataChange: username already exists. Appending random string to name: " + append);
                             }
+                            username = username + append;
 
-                            //add new user to db
+                            //add new user to the database
+                            firebaseMethods.addNewUser(email, username, "", "", "");
 
+                            Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
 
-                            //add new user_account_setting to db
                         }
 
                         @Override
@@ -160,6 +161,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                         }
                     });
+
                 } else {
                     // User is signed out
                     Log.d(TAG, "onAuthStateChanged:signed_out");

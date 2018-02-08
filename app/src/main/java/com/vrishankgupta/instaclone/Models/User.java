@@ -6,11 +6,11 @@ package com.vrishankgupta.instaclone.Models;
 
 public class User {
     private String user_id;
-    private String phone_no;
+    private long phone_no;
     private String email;
     private String username;
 
-    public User(String user_id, String phone_no, String email, String username) {
+    public User(String user_id, long phone_no, String email, String username) {
         this.user_id = user_id;
         this.phone_no = phone_no;
         this.email = email;
@@ -30,11 +30,11 @@ public class User {
         this.user_id = user_id;
     }
 
-    public String getPhone_no() {
+    public long getPhone_no() {
         return phone_no;
     }
 
-    public void setPhone_no(String phone_no) {
+    public void setPhone_no(long phone_no) {
         this.phone_no = phone_no;
     }
 

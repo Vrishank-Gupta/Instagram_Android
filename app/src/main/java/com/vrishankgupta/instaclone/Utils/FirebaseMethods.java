@@ -11,7 +11,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.vrishankgupta.instaclone.Models.User;
+import com.vrishankgupta.instaclone.Models.UserAccountSettings;
 import com.vrishankgupta.instaclone.R;
 
 
@@ -26,12 +29,16 @@ public class FirebaseMethods {
     //firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private FirebaseDatabase mFirebaseDatabase;
+    private DatabaseReference myRef;
     private String userID;
 
     private Context mContext;
 
     public FirebaseMethods(Context context) {
         mAuth = FirebaseAuth.getInstance();
+        mFirebaseDatabase = FirebaseDatabase.getInstance();
+        myRef = mFirebaseDatabase.getReference();
         mContext = context;
 
         if(mAuth.getCurrentUser() != null){
@@ -39,23 +46,22 @@ public class FirebaseMethods {
         }
     }
 
-    public boolean checkIfUsernameExist(String username, DataSnapshot dataSnapshot)
-    {
-        Log.d(TAG, "checkIfUsernameExist: checking if" + username+ "already exist");
-        User user = new User();
-        for(DataSnapshot ds: dataSnapshot.getChildren())
-        {
-            Log.d(TAG, "checkIfUsernameExist: datasnapshot" + ds);
-            user.setUsername(ds.getValue(User.class).getUsername());
-            Log.d(TAG, "checkIfUsernameExist: "+user.getUsername());
+    public boolean checkIfUsernameExists(String username, DataSnapshot datasnapshot){
+        Log.d(TAG, "checkIfUsernameExists: checking if " + username + " already exists.");
 
-            if(StringManipulation.expandUsername(user.getUsername()).equals(username))
-            {
-                Log.d(TAG, "checkIfUsernameExist: found a match" + user.getUsername());
+        User user = new User();
+
+        for (DataSnapshot ds: datasnapshot.child(userID).getChildren()){
+            Log.d(TAG, "checkIfUsernameExists: datasnapshot: " + ds);
+
+            user.setUsername(ds.getValue(User.class).getUsername());
+            Log.d(TAG, "checkIfUsernameExists: username: " + user.getUsername());
+
+            if(StringManipulation.expandUsername(user.getUsername()).equals(username)){
+                Log.d(TAG, "checkIfUsernameExists: FOUND A MATCH: " + user.getUsername());
                 return true;
             }
         }
-
         return false;
     }
 
@@ -88,4 +94,33 @@ public class FirebaseMethods {
                     }
                 });
     }
+
+
+
+    public void addNewUser(String email, String username, String description, String website, String profile_photo){
+
+        User user = new User( userID,  1,  email,  StringManipulation.condenseUsername(username) );
+
+        myRef.child(mContext.getString(R.string.dbname_users))
+                .child(userID)
+                .setValue(user);
+
+
+        UserAccountSettings settings = new UserAccountSettings(
+                description,
+                username,
+                0,
+                0,
+                0,
+                profile_photo,
+                username,
+                website
+        );
+
+        myRef.child(mContext.getString(R.string.dbname_user_account_settings))
+                .child(userID)
+                .setValue(settings);
+
+    }
+
 }
